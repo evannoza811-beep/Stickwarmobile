@@ -1,0 +1,20 @@
+name: Buat APK Stick War 2
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Ambil Kode
+      uses: actions/checkout@v3
+    - name: Bangun Aplikasi Web Jadi APK
+      uses: jandall/html-to-apk-action@v1
+      with:
+        app-name: "Stick War 2 HP"
+        package-name: "com.saya.stickwar2"
+        icon: ""
+    - name: Simpan Hasil APK
+      uses: actions/upload-artifact@v3
+      with:
+        name: StickWar2_Offline_Port
+        path: app-release.apk
+        
