@@ -1,20 +1,20 @@
-name: Buat APK Stick War 2
+name: Cetak APK Stick War 2 Instan
 on: [push]
 jobs:
-  build:
+  build-apk:
     runs-on: ubuntu-latest
     steps:
-    - name: Ambil Kode
-      uses: actions/checkout@v3
-    - name: Bangun Aplikasi Web Jadi APK
-      uses: jandall/html-to-apk-action@v1
+    - name: Ambil File Proyek
+      uses: actions/checkout@v4
+    - name: Bungkus Menjadi APK
+      uses: ttechnics/html5-to-apk-compiler-action@v2
       with:
-        app-name: "Stick War 2 HP"
-        package-name: "com.saya.stickwar2"
-        icon: ""
-    - name: Simpan Hasil APK
-      uses: actions/upload-artifact@v3
+        app_name: "Stick War 2 HP"
+        package_name: "com.saya.stickwar2"
+        project_dir: "."
+    - name: Ambil File APK Jadi
+      uses: actions/upload-artifact@v4
       with:
         name: StickWar2_Offline_Port
-        path: app-release.apk
+        path: "*.apk"
         
