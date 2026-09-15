@@ -1,20 +1,39 @@
-name: Cetak APK Stick War 2 Instan
+name: Cetak APK Stick War 2 Resmi
 on: [push]
 jobs:
-  build-apk:
+  build:
     runs-on: ubuntu-latest
     steps:
     - name: Ambil File Proyek
       uses: actions/checkout@v4
-    - name: Bungkus Menjadi APK
-      uses: ttechnics/html5-to-apk-compiler-action@v2
+
+    - name: Set up Java
+      uses: actions/setup-java@v4
       with:
-        app_name: "Stick War 2 HP"
-        package_name: "com.saya.stickwar2"
-        project_dir: "."
-    - name: Ambil File APK Jadi
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+
+    - name: Buat Struktur Aplikasi
+      run: |
+        mkdir -p app/src/main/assets/www
+        cp index.html app/src/main/assets/www/
+        cp stickwar2.swf app/src/main/assets/www/
+
+    - name: Unduh Alat Bungkus APK
+      run: |
+        wget https://github.com -O base.apk
+        mkdir unzip_apk
+        unzip base.apk -d unzip_apk/
+        cp -r app/src/main/assets/www/* unzip_apk/assets/www/
+        cd unzip_apk
+        zip -r ../StickWar2_HP.apk .
+
+    - name: Simpan Hasil APK
       uses: actions/upload-artifact@v4
       with:
         name: StickWar2_Offline_Port
-        path: "*.apk"
+        path: StickWar2_HP.apk
         
