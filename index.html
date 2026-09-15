@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stick War 2 Ultimate Port</title>
+    <style>
+        body {
+            margin: 0; padding: 0; background: #111; color: white;
+            font-family: Arial; text-align: center; user-select: none;
+        }
+        #game-box {
+            width: 100%; max-width: 800px; height: 450px;
+            background: #000; margin: 10px auto; position: relative;
+        }
+        .tombol-area {
+            margin-top: 8px; display: flex; gap: 6px;
+            justify-content: center; flex-wrap: wrap; padding: 0 10px;
+        }
+        .btn {
+            background: #ff9900; color: black; border: none;
+            padding: 8px 12px; font-size: 13px; font-weight: bold;
+            border-radius: 6px; box-shadow: 0 3px #cc7700; touch-action: manipulation;
+        }
+        .btn:active {
+            box-shadow: 0 1px #cc7700; transform: translateY(2px);
+        }
+        /* Tombol Aksi Klik Kanan */
+        .btn-action {
+            background: #00ccff; box-shadow: 0 3px #0088cc;
+        }
+        .btn-action.aktif {
+            background: #ff3300; box-shadow: 0 3px #cc2200; color: white;
+        }
+        /* Tombol Sihir Magikill */
+        .btn-magic {
+            background: #cc66ff; box-shadow: 0 3px #9933cc; color: white;
+        }
+        /* Tombol Rekrut Pasukan */
+        .btn-spawn {
+            background: #2ecc71; box-shadow: 0 3px #27ae60; color: white;
+        }
+    </style>
+    <script src="https://unpkg.com"></script>
+</head>
+<body>
+
+    <h3>Stick War 2 HP - Ultimate Control</h3>
+
+    <!-- Tempat Game Muncul -->
+    <div id="game-box"></div>
+
+    <!-- BARIS 1: Navigasi & Menu -->
+    <div class="tombol-area">
+        <button id="rt-click-btn" class="btn btn-action">🖱️ Mode: JALAN (Klik Kanan)</button>
+        <button class="btn" onclick="pijitPause()">⏸️ Pause Menu (P / Esc)</button>
+    </div>
+    
+    <!-- BARIS 2: Formasi Pasukan -->
+    <div class="tombol-area">
+        <button class="btn" onclick="pijitKeyboard('KeyZ')">🛡️ Bertahan (Z)</button>
+        <button class="btn" onclick="pijitKeyboard('KeyX')">⚔️ Serang (X)</button>
+        <button class="btn" onclick="pijitKeyboard('KeyC')">🏰 Mundur (C)</button>
+    </div>
+
+    <!-- BARIS 3: Sihir Magikill -->
+    <div class="tombol-area">
+        <button class="btn btn-magic" onclick="pijitKeyboard('KeyQ')">💥 Blast (Q)</button>
+        <button class="btn btn-magic" onclick="pijitKeyboard('KeyW')">🧪 Poison (W)</button>
+        <button class="btn btn-magic" onclick="pijitKeyboard('KeyE')">⚡ Wall (E)</button>
+    </div>
+
+    <!-- BARIS 4: Rekrut Pasukan Kastil -->
+    <div class="tombol-area">
+        <button class="btn btn-spawn" onclick="pijitKeyboard('Digit1')">👷 Miner (1)</button>
+        <button class="btn btn-spawn" onclick="pijitKeyboard('Digit2')">⚔️ Sword (2)</button>
+        <button class="btn btn-spawn" onclick="pijitKeyboard('Digit3')">🏹 Archer (3)</button>
+        <button class="btn btn-spawn" onclick="pijitKeyboard('Digit4')">🔱 Spear (4)</button>
+        <button class="btn btn-spawn" onclick="pijitKeyboard('Digit5')">🔮 Magi (5)</button>
+        <button class="btn btn-spawn" onclick="pijitKeyboard('Digit6')">👹 Giant (6)</button>
+    </div>
+
+    <script>
+        let isRightClickMode = false;
+        let ruffPlayer = null;
+        const gameBox = document.getElementById("game-box");
+        const rtClickBtn = document.getElementById("rt-click-btn");
+
+        // Memuat Game via Server CrazyGames
+        window.addEventListener("DOMContentLoaded", () => {
+            const ruffle = window.RufflePlayer.newest();
+            ruffPlayer = ruffle.createPlayer();
+            gameBox.appendChild(ruffPlayer);
+            ruffPlayer.load("stickwar2.swf"); 
+            
+            // Membaca ketukan di area game
+            ruffPlayer.addEventListener("pointerdown", handleScreenTouch, true);
+        });
+
+        // Mengirim Input Keyboard (Mendukung Huruf dan Angka)
+        function pijitKeyboard(kode) {
+            const down = new KeyboardEvent('keydown', { code: kode, bubbles: true });
+            const up = new KeyboardEvent('keyup', { code: kode, bubbles: true });
+            document.dispatchEvent(down);
+            setTimeout(() => document.dispatchEvent(up), 50);
+        }
+
+        // Memicu Jeda Menu Game
+        function pijitPause() {
+            pijitKeyboard('Escape');
+            setTimeout(() => pijitKeyboard('KeyP'), 20);
+        }
+
+        // Mengatur Status Tombol Jalan
+        rtClickBtn.addEventListener("click", () => {
+            isRightClickMode = !isRightClickMode;
+            if (isRightClickMode) {
+                rtClickBtn.innerText = "🎯 KLIK DI LAYAR UNTUK JALAN";
+                rtClickBtn.classList.add("aktif");
+            } else {
+                rtClickBtn.innerText = "🖱️ Mode: JALAN (Klik Kanan)";
+                rtClickBtn.classList.remove("aktif");
+            }
+        });
+
+        // Logika Klik Kiri Otomatis vs Klik Kanan Buatan
+        function handleScreenTouch(event) {
+            if (isRightClickMode) {
+                event.stopPropagation();
+                event.preventDefault();
+
+                const rightClick = new PointerEvent("pointerdown", {
+                    clientX: event.clientX,
+                    clientY: event.clientY,
+                    button: 2,
+                    buttons: 2,
+                    bubbles: true
+                });
+
+                ruffPlayer.dispatchEvent(rightClick);
+
+                isRightClickMode = false;
+                rtClickBtn.innerText = "🖱️ Mode: JALAN (Klik Kanan)";
+                rtClickBtn.classList.remove("aktif");
+            }
+        }
+    </script>
+
+</body>
+</html>
